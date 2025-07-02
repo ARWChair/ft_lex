@@ -3,11 +3,51 @@
 int ft_strlen(char *str) {
     int pos;
 
+    if (!str)
+        return 0;
     for (pos = 0; str[pos]; pos++);
     return pos;
 }
 
-int find_first_occurence(char *file, char *str) {
+char *ft_strdup_end(char *str, int end) {
+    int max_size = (int)ft_strlen(str);
+    char *new_str;
+    int start;
+    
+    if (!str)
+        return NULL;
+    if (max_size <= end)
+        new_str = (char *)malloc(sizeof(char) * (max_size + 1));
+    else
+        new_str = (char *)malloc(sizeof(char) * (end + 1));
+    if (!new_str)
+        return NULL;
+    for (start = 0; str[start] && start < end; start++)
+        new_str[start] = str[start];
+    new_str[start] = 0;
+    return new_str;
+}
+
+char *ft_strdup_section(char *str, int start, int end) {
+    int max_size = (int)ft_strlen(str);
+    char *new_str;
+    int index;
+    
+    if (!str)
+        return NULL;
+    if (max_size <= end)
+        new_str = (char *)malloc(sizeof(char) * (max_size + 1));
+    else
+        new_str = (char *)malloc(sizeof(char) * (end - start + 1));
+    if (!new_str)
+        return NULL;
+    for (index = start; str[index] && index < end; index++)
+        new_str[index - start] = str[index];
+    new_str[index - start] = 0;
+    return new_str;
+}
+
+int find_first_occurrence(char *file, char *str) {
     int index = 0;
     int str_pos = 0;
     int str_len = ft_strlen(str);
@@ -15,7 +55,41 @@ int find_first_occurence(char *file, char *str) {
     for (int file_pos = 0; file[file_pos]; file_pos++) {
         for (str_pos = 0; str[str_pos]; str_pos++) {
             if (file[str_pos + file_pos] != str[str_pos])
-            break;
+                break;
+        }
+        if (str_pos == str_len)
+            return index;
+        if (str_pos == 0)
+            index += 1;
+        else
+            index += str_pos;
+    }
+    return -1;
+}
+
+int find_first_occurrence_spaces(char *file, char *str, char last_char) {
+    int index = 0;
+    int str_pos = 0;
+    int str_len = ft_strlen(str);
+
+    for (int file_pos = 0; file[file_pos]; file_pos++) {
+        for (str_pos = 0; str[str_pos]; str_pos++) {
+            if (file[str_pos + file_pos] != str[str_pos]) {
+                break;
+            }
+        }
+        int str_pos_fallback = str_pos;
+        if (str[str_pos]) {
+            while (file[str_pos + file_pos]) { 
+                if (file[str_pos + file_pos] == 10)
+                    break;       
+                if (file[str_pos + file_pos] != 32) {
+                    str_pos = str_pos_fallback;
+                    break;
+                }
+                str_pos++;
+            }
+            // printf("Test: %i\n", str_pos);
         }
         if (str_pos == str_len)
             return index;
@@ -62,9 +136,25 @@ char *replace_string_with_character(char *file, char *replace_string, int start,
     return file;
 }
 
-int is_new_part(char *file, int occurence) {
-
+int find_char(char *file, char to_find, int start, int end) {
+    while (file[start]) {
+        if (end != -1 && start == end)
+            break;
+        if (file[start] == to_find)
+            break;
+        start++;
+    }
+    return start;
 }
 
-//aabbccdeef
-//de
+// search to right side till finding a '")' or '" ,'. Jump over '"\'. Do same for right side
+int is_new_part(char *file, int occurrence) {
+    int start = occurrence;
+    int right_dquote = find_char(file, '"', start, -1);
+    int right_clambs = find_char(file, ')', start, -1);
+    if (right_dquote != right_clambs - 1)
+        return start;
+    return -1;
+    // printf("Occc> %c, %c, %c\n", file[occurrence - 1], file[occurrence], file[occurrence + 1]);
+    // return occurrence;
+}

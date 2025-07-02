@@ -1,13 +1,14 @@
 #include <stdio.h>
 
 int ft_strlen(char *str) {
-    int pos;
+    int pos = 0;
 
-    for (pos = 0; str[pos]; pos++);
+    while (str[pos])
+        pos++;
     return pos;
 }
 
-int find_first_occurence(char *file, char *str) {
+int find_first_occurrence(char *file, char *str) {
     int index = 0;
     int str_pos = 0;
     int str_len = ft_strlen(str);
@@ -28,5 +29,5 @@ int find_first_occurence(char *file, char *str) {
 }
 
 int main() {
-    printf("%i\n", find_first_occurence("aabbccdgdeef", "b"));
+    printf("%i\n", find_first_occurrence("aabbccdgdeef", "b"));
 }
