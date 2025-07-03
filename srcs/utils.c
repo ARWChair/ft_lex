@@ -74,25 +74,18 @@ int find_first_occurrence_spaces(char *file, char *str, char last_char) {
 
     for (int file_pos = 0; file[file_pos]; file_pos++) {
         for (str_pos = 0; str[str_pos]; str_pos++) {
-            if (file[str_pos + file_pos] != str[str_pos]) {
+            if (file[str_pos + file_pos] != str[str_pos])
                 break;
-            }
         }
-        int str_pos_fallback = str_pos;
-        if (str[str_pos]) {
-            while (file[str_pos + file_pos]) { 
-                if (file[str_pos + file_pos] == 10)
-                    break;       
-                if (file[str_pos + file_pos] != 32) {
-                    str_pos = str_pos_fallback;
+        if (str_pos == str_len) {
+            int fallback = file_pos + str_pos;
+            for (; file[fallback]; fallback++) {
+                if (file[fallback] == last_char)
+                    return index;
+                if (file[fallback] != 32)
                     break;
-                }
-                str_pos++;
             }
-            // printf("Test: %i\n", str_pos);
         }
-        if (str_pos == str_len)
-            return index;
         if (str_pos == 0)
             index += 1;
         else
