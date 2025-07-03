@@ -9,6 +9,22 @@ int ft_strlen(char *str) {
     return pos;
 }
 
+char *ft_strdup(char *str) {
+    int max_size = (int)ft_strlen(str);
+    char *new_str;
+    int start;
+    
+    if (!str)
+        return NULL;
+    new_str = (char *)malloc(sizeof(char) * (max_size + 1));
+    if (!new_str)
+        return NULL;
+    for (start = 0; str[start]; start++)
+        new_str[start] = str[start];
+    new_str[start] = 0;
+    return new_str;
+}
+
 char *ft_strdup_end(char *str, int end) {
     int max_size = (int)ft_strlen(str);
     char *new_str;
@@ -122,7 +138,6 @@ char *read_file(int fd) {
 
 char *replace_string_with_character(char *file, char *replace_string, int start, char characters) {
     int replace_ammount = ft_strlen(replace_string);
-    printf("%i\n", replace_ammount);
 
     for (int counter = 0; file[start + counter] && counter < replace_ammount; counter++)
         file[start + counter] = characters;
@@ -140,14 +155,29 @@ int find_char(char *file, char to_find, int start, int end) {
     return start;
 }
 
+bool is_closing_quote(char *str, int start, char quote) {
+    if (!str || !str[start])
+        return false;
+    if (str[start - 1] != quote && str[start] == quote && str[start + 1])
+        start++;
+    for (; str[start]; start++) {
+        if (str[start] == quote)
+            return true;
+        if (str[start] == '\\')
+            break;
+        
+    }
+    return false;
+}
+
 // search to right side till finding a '")' or '" ,'. Jump over '"\'. Do same for right side
 int is_new_part(char *file, int occurrence) {
     int start = occurrence;
     int right_dquote = find_char(file, '"', start, -1);
+    bool check_closing = is_closing_quote(file, start, '"');
     int right_clambs = find_char(file, ')', start, -1);
     if (right_dquote != right_clambs - 1)
         return start;
     return -1;
-    // printf("Occc> %c, %c, %c\n", file[occurrence - 1], file[occurrence], file[occurrence + 1]);
     // return occurrence;
 }

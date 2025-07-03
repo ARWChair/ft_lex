@@ -23,7 +23,7 @@ modified_lexer_file get_lexer_part(char *file) {
     modified_lexer_file return_struct;
 
     int occurrence = find_first_occurrence_spaces(file, "%%", '\n');
-    printf("Occ> %i\n", occurrence);
+    is_new_part(file, occurrence);
     if (occurrence == -1)
         occurrence = 0;
     return_struct.modified_file = ft_strdup_end(file, occurrence);

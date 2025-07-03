@@ -11,7 +11,7 @@ typedef struct modified_lexer_file {
     char *modified_file;
     int star_pos;
     int end_pos;
-}       modified_lexer_file;
+}               modified_lexer_file;
 
 typedef struct lexer_parts {
     modified_lexer_file header;
@@ -20,13 +20,31 @@ typedef struct lexer_parts {
 }               lexer_parts;
 
 
+typedef struct lexer_strings_content {
+    int start;
+    int end;
+    char *content;
+}               lexer_strings_content;
+
+typedef struct lexer_strings {
+    int ammount;
+    lexer_strings_content *strings;
+}               lexer_strings;
+
+
 // ---------- parts.c ---------- \\'
 modified_lexer_file get_lexer_part(char *file);
 lexer_parts         split_in_parts(char *file);
 void clear_lexer(lexer_parts *failed);
 
+// ---------- strings.c -------- \\'
+void clear_lexer_strings(lexer_strings *failed);
+char *get_string(char *file, int *start);
+lexer_strings create_lexer_strings(char *file);
+
 // ---------- utils.c ---------- \\'
 int ft_strlen(char *str);
+char *ft_strdup(char *str);
 char *ft_strdup_end(char *str, int end);
 char *ft_strdup_section(char *str, int start, int end);
 char *read_file(int fd);
