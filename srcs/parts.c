@@ -11,7 +11,7 @@ static void fail_alloc(modified_lexer_file *failed) {
 }
 
 // Clears the whole lexer. Use outside for clearing at end
-void clear_lexer(lexer_parts *failed) {
+void clear_lexer_parts(lexer_parts *failed) {
     fail_alloc(&(failed->header));
     fail_alloc(&(failed->body));
     fail_alloc(&(failed->footer));
@@ -42,29 +42,29 @@ lexer_parts split_in_parts(char *file) {
     parts.header = get_lexer_part(file);
     if (!parts.header.modified_file) {
         free(file);
-        clear_lexer(&parts);
+        clear_lexer_parts(&parts);
         return parts;
     }
     head_modified = ft_strdup_section(file, parts.header.end_pos, ft_strlen(file));
     free(file);
     file = NULL;
     if (!head_modified)
-        return clear_lexer(&parts), parts;
+        return clear_lexer_parts(&parts), parts;
 
     parts.body = get_lexer_part(head_modified);
     if (!parts.body.modified_file) {
         free(head_modified);
-        clear_lexer(&parts);
+        clear_lexer_parts(&parts);
         return parts;
     }
     body_modified = ft_strdup_section(head_modified, parts.body.end_pos, ft_strlen(head_modified));
     free(head_modified);
     if (!body_modified)
-        return clear_lexer(&parts), parts;
+        return clear_lexer_parts(&parts), parts;
 
     parts.footer = get_lexer_part(body_modified);
     free(body_modified);
     if (!parts.footer.modified_file)
-        return clear_lexer(&parts), parts;
+        return clear_lexer_parts(&parts), parts;
     return parts;
 }

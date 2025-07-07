@@ -111,9 +111,14 @@ int find_first_occurrence_spaces(char *file, char *str, char last_char) {
 }
 
 char *append_char(char *str, char new) {
-    char *return_string = (char *)malloc(ft_strlen(str) + 2);
+    char *return_string;
     int pos;
 
+    if (!str)
+        return NULL;
+    return_string = (char *)malloc(ft_strlen(str) + 2);
+    if (!return_string)
+        return NULL;
     for (pos = 0; str[pos]; pos++)
         return_string[pos] = str[pos];
     return_string[pos++] = new;
@@ -127,6 +132,8 @@ char *read_file(int fd) {
     char *file_content = (char *)malloc(2);
     char read_char;
 
+    if (!file_content)
+        return NULL;
     read(fd, &read_char, 1);
     file_content[0] = read_char;
     file_content[1] = 0;
@@ -180,4 +187,21 @@ int is_new_part(char *file, int occurrence) {
         return start;
     return -1;
     // return occurrence;
+}
+
+void    shutdown(ft_lex *lex, bool error) {
+    if (lex->lex_parts != NULL)
+        clear_lexer_parts(lex->lex_parts);
+    lex->lex_parts = NULL;
+    if (lex->lex_strings != NULL)
+        clear_lexer_strings(lex->lex_strings);
+    lex->lex_strings = NULL;
+    int check_fd = fcntl(lex->file_fd, F_GETFD);
+    if (!(check_fd == -1 && errno == EBADF))
+        close(lex->file_fd);
+    if (lex->file_content)
+        free(lex->file_content);
+    lex->file_content = NULL;
+    if (error == true)
+        exit(1);
 }
