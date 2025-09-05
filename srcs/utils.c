@@ -110,6 +110,35 @@ int find_first_occurrence_spaces(char *file, char *str, char last_char) {
     return -1;
 }
 
+int find_first_occurrence_spaces_end(char *file, char *str, char last_char) {
+    int index = 0;
+    int str_pos = 0;
+    int str_len = ft_strlen(str);
+
+    for (int file_pos = 0; file[file_pos]; file_pos++) {
+        for (str_pos = 0; str[str_pos]; str_pos++) {
+            if (file[str_pos + file_pos] != str[str_pos])
+                break;
+        }
+        if (str_pos == str_len) {
+            int fallback = file_pos + str_pos;
+            for (; file[fallback]; fallback++) {
+                if (file[fallback] == last_char)
+                    return index;
+                if (file[fallback] != 32)
+                    break;
+            }
+            if (file[fallback] == 0)
+                return index;
+        }
+        if (str_pos == 0)
+            index += 1;
+        else
+            index += str_pos;
+    }
+    return -1;
+}
+
 char *append_char(char *str, char new) {
     char *return_string;
     int pos;
@@ -187,6 +216,44 @@ int is_new_part(char *file, int occurrence) {
         return start;
     return -1;
     // return occurrence;
+}
+
+void terminate_strings(char *file) {
+    for (int pos = 0; file[pos]; pos++) {
+        if (file[pos] != '"')
+            continue;
+        if (is_closing_quote(file, pos - 1, '"') == false)
+            continue;
+        int ending = find_char(file, '"', pos + 1, ft_strlen(file));
+        int start = pos + 1;
+        for (; file[start] && start < ending; start++) {
+            file[start] = 'X';
+        }
+        pos = start;
+    }
+}
+
+int skip_spaces_parts(char *file, int start) {
+    int start_pos = start;
+
+    for(; file[start_pos]; start_pos++) {
+        if (file[start_pos + 1] == '\n' && file[start_pos + 1] == 0)
+            continue;
+        start_pos = start_pos + 2;
+        break;
+    }
+    return start_pos;
+}
+
+int get_and_eliminate_part_spliter(char *file) {
+    int check_spliter = find_first_occurrence_spaces_end(file, "%%", '\n');
+    if (check_spliter == -1)
+        return -1;
+    if (check_spliter > 0 && file[check_spliter - 1] != '\n')
+        return -1;
+    file[check_spliter] = 'X';
+    file[check_spliter + 1] = 'X';
+    return check_spliter;
 }
 
 void    shutdown(ft_lex *lex, bool error) {

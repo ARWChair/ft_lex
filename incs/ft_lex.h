@@ -8,17 +8,11 @@
 # include <stdlib.h>
 # include <stdbool.h>
 
-typedef struct modified_lexer_file {
-    char *modified_file;
-    int star_pos;
-    int end_pos;
-}               modified_lexer_file;
-
-typedef struct lexer_parts {
-    modified_lexer_file header;
-    modified_lexer_file body;
-    modified_lexer_file footer;
-}               lexer_parts;
+typedef struct lexer_string_parts {
+    char *header;
+    char *body;
+    char *footer;
+}               lexer_string_parts;
 
 
 typedef struct lexer_strings_content {
@@ -33,21 +27,21 @@ typedef struct lexer_strings {
 }               lexer_strings;
 
 typedef struct ft_lex {
-    lexer_strings   *lex_strings;
-    lexer_parts     *lex_parts;
-    char            *file_content;
-    int             file_fd;
+    lexer_strings           *lex_strings;
+    lexer_string_parts      *lex_parts;
+    char                    *file_content;
+    int                     file_fd;
 }               ft_lex;
 
 // ---------- parts.c ---------- \\'
-modified_lexer_file get_lexer_part(char *file);
-lexer_parts         split_in_parts(char *file);
-void clear_lexer_parts(lexer_parts *failed);
+void    split_in_parts(ft_lex *lex);
+void    clear_lexer_parts(lexer_string_parts *failed);
+bool    check_for_parts(ft_lex *lex, char *temp);
 
 // ---------- strings.c -------- \\'
-void clear_lexer_strings(lexer_strings *failed);
-char *get_string(ft_lex *lex, int *start);
-lexer_strings create_lexer_strings(ft_lex *lex);
+void            clear_lexer_strings(lexer_strings *failed);
+char            *get_string(ft_lex *lex, int *start);
+lexer_strings   create_lexer_strings(ft_lex *lex);
 
 // ---------- utils.c ---------- \\'
 int     ft_strlen(char *str);
@@ -58,7 +52,11 @@ char    *read_file(int fd);
 int     is_new_part(char *file, int occurrence);
 int     find_first_occurrence(char *file, char *str);
 int     find_first_occurrence_spaces(char *file, char *str, char last_char);
+int     find_first_occurrence_spaces_end(char *file, char *str, char last_char);
 char    *replace_string_with_character(char *file, char *replace_string, int start, char characters);
+void    terminate_strings(char *file);
+int     skip_spaces_parts(char *file, int start);
+int     get_and_eliminate_part_spliter(char *file);
 void    shutdown(ft_lex *lex, bool error);
 
 #endif
