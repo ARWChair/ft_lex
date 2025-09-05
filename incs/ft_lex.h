@@ -14,9 +14,13 @@ typedef struct lexer_string_parts {
     char *footer;
 }               lexer_string_parts;
 
-typedef struct map {
+typedef struct map_content {
     char *pattern;
     char *action;
+}               map_content;
+
+typedef struct map {
+    map_content *map;
     ssize_t map_size;
 }               map;
 

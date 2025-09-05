@@ -4,6 +4,12 @@ map *create_map() {
     map *create_map = (map*)malloc(sizeof(map));
     if (!create_map)
         return NULL;
+    map_content *new_content = (map_content*)malloc(sizeof(map_content));
+    if (!new_content) {
+        free(create_map);
+        return NULL;
+    }
+    create_map->content = new_content;
     create_map->map_size = 0;
     return create_map;
 }
