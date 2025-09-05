@@ -13,6 +13,6 @@
 //     // printf("%s\n", file);
 //     lexer_parts parts = split_in_parts(file);
 //     // printf("%s, %i\n---\n%s, %i\n---\n%s, %i\n", parts.header.modified_file, ft_strlen(parts.header.modified_file), parts.body.modified_file, ft_strlen(parts.body.modified_file), parts.footer.modified_file, ft_strlen(parts.footer.modified_file));
-//     clear_lexer_parts&parts);
+//     clear_lexer_string_parts(&parts);
 //     close(fd);
 // }

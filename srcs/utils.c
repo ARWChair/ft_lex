@@ -257,9 +257,11 @@ int get_and_eliminate_part_spliter(char *file) {
 }
 
 void    shutdown(ft_lex *lex, bool error) {
-    if (lex->lex_parts != NULL)
-        clear_lexer_parts(lex->lex_parts);
-    lex->lex_parts = NULL;
+    if (lex->parts != NULL)
+        clear_lexer_parts(lex->parts);
+    if (lex->lex_string_parts != NULL)
+        clear_lexer_string_parts(lex->lex_string_parts);
+    lex->lex_string_parts = NULL;
     if (lex->lex_strings != NULL)
         clear_lexer_strings(lex->lex_strings);
     lex->lex_strings = NULL;

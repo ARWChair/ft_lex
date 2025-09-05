@@ -14,6 +14,19 @@ typedef struct lexer_string_parts {
     char *footer;
 }               lexer_string_parts;
 
+typedef struct map {
+    char *pattern;
+    char *action;
+    ssize_t map_size;
+}               map;
+
+typedef struct lexer_middle_struct {
+    map *pairs;
+}               lexer_middle_struct;
+
+typedef struct lexer_parts {
+    lexer_middle_struct     *middle;
+}               lexer_parts;
 
 typedef struct lexer_strings_content {
     int start;
@@ -28,15 +41,28 @@ typedef struct lexer_strings {
 
 typedef struct ft_lex {
     lexer_strings           *lex_strings;
-    lexer_string_parts      *lex_parts;
+    lexer_string_parts      *lex_string_parts;
+    lexer_parts             *parts;
     char                    *file_content;
     int                     file_fd;
 }               ft_lex;
 
+// ---------- map.c ---------- \\'
+map *create_map();
+int append_map(map *map, char *pattern, char *action);
+int get_pos_in_map(map *map, char *pattern);
+int remove_map(map *map, char *pattern);
+int clear_map(map *map);
+
 // ---------- parts.c ---------- \\'
+void    clear_lexer_string_parts(lexer_string_parts *failed);
+void    clear_lexer_parts(lexer_parts *lex);
 void    split_in_parts(ft_lex *lex);
-void    clear_lexer_parts(lexer_string_parts *failed);
 bool    check_for_parts(ft_lex *lex, char *temp);
+bool    format_header_part(ft_lex *lex);
+bool    format_body_part(ft_lex *lex);
+bool    format_footer_part(ft_lex *lex);
+void    split_parts(ft_lex *lex);
 
 // ---------- strings.c -------- \\'
 void            clear_lexer_strings(lexer_strings *failed);

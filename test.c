@@ -7,8 +7,9 @@ int main() {
     if (lex.file_fd < 3)
         return -1;
     lex.file_content = read_file(lex.file_fd);
-    lex.lex_parts = NULL;
+    lex.lex_string_parts = NULL;
     lex.lex_strings = NULL;
+    lex.lex_string_parts = NULL;
     split_in_parts(&lex);
     shutdown(&lex, false);
     return (0);
