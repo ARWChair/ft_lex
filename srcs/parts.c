@@ -3,13 +3,13 @@
 // ------------------- lexer_parts ------------------- \\'
 
 void clear_lexer_parts(lexer_parts *lex) {
-    if (lex->middle) {
-        free(lex->middle->action);
-        free(lex->middle->pattern);
-        lex->middle->action = NULL;
-        lex->middle->pattern = NULL;
-        lex->middle = NULL;
-    }
+    // if (lex->middle) {
+    //     free(lex->middle->action);
+    //     free(lex->middle->pattern);
+    //     lex->middle->action = NULL;
+    //     lex->middle->pattern = NULL;
+    //     lex->middle = NULL;
+    // }
 }
 
 bool format_header_part(ft_lex *lex) {
@@ -17,7 +17,33 @@ bool format_header_part(ft_lex *lex) {
 }
 
 bool format_body_part(ft_lex *lex) {
-    
+    map *mp = init_map();
+    if (!mp)
+        shutdown(lex, true);
+
+    char *line;
+    int pos = 0;
+
+    for (; lex->lex_string_parts->body[pos]; pos++) {
+        line = get_line(lex->lex_string_parts->body, &pos);
+        if (pos == -1 && !line) {
+            write(2, "Error: Multiline action not closed\n", 35);
+            shutdown(lex, true);
+        }
+        if (!line)
+            shutdown(lex, true);
+
+        mp = split_line_into_map(mp, line);
+        if (!mp) {
+            free(line);
+            shutdown(lex, true);
+        }
+        free(line);
+    }
+    // print_map(mp);
+    clear_map(mp);
+    // Am ende das hinzufuegen
+    // lex->parts->middle->pairs = mp;
     return true;
 }
 
@@ -76,11 +102,16 @@ bool check_for_parts(ft_lex *lex, char *temp) {
     if (!temp_part->header)
         goto cleanup;
 
-    temp_part->body = ft_strdup_section(lex->file_content, skip_spaces_parts(lex->file_content, check_header), check_body);
+    temp_part->body = ft_strdup_section(lex->file_content, skip_spaces_parts(lex->file_content, check_header) + 1, check_body);
     if (!temp_part->body)
         goto cleanup;
     
-    temp_part->footer = ft_strdup_section(lex->file_content, skip_spaces_parts(lex->file_content, check_body), ft_strlen(lex->file_content));
+    int footer_section = skip_spaces_parts(lex->file_content, check_body);
+    int file_size = ft_strlen(lex->file_content);
+    if (file_size - footer_section == 0)
+        temp_part->footer = ft_strdup("");
+    else
+        temp_part->footer = ft_strdup_section(lex->file_content, footer_section + 1, file_size);
     if (!temp_part->footer)
         goto cleanup;
     

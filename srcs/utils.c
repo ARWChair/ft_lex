@@ -88,13 +88,14 @@ int find_first_occurrence_spaces(char *file, char *str, char last_char) {
     int str_pos = 0;
     int str_len = ft_strlen(str);
 
+    int fallback;
     for (int file_pos = 0; file[file_pos]; file_pos++) {
         for (str_pos = 0; str[str_pos]; str_pos++) {
             if (file[str_pos + file_pos] != str[str_pos])
                 break;
         }
         if (str_pos == str_len) {
-            int fallback = file_pos + str_pos;
+            fallback = file_pos + str_pos;
             for (; file[fallback]; fallback++) {
                 if (file[fallback] == last_char)
                     return index;
@@ -120,8 +121,9 @@ int find_first_occurrence_spaces_end(char *file, char *str, char last_char) {
             if (file[str_pos + file_pos] != str[str_pos])
                 break;
         }
+        int fallback;
         if (str_pos == str_len) {
-            int fallback = file_pos + str_pos;
+            fallback = file_pos + str_pos;
             for (; file[fallback]; fallback++) {
                 if (file[fallback] == last_char)
                     return index;
@@ -237,7 +239,7 @@ int skip_spaces_parts(char *file, int start) {
     int start_pos = start;
 
     for(; file[start_pos]; start_pos++) {
-        if (file[start_pos + 1] == '\n' && file[start_pos + 1] == 0)
+        if (file[file[start_pos + 1] == 0 && start_pos + 1] == '\n')
             continue;
         start_pos = start_pos + 2;
         break;
@@ -256,9 +258,83 @@ int get_and_eliminate_part_spliter(char *file) {
     return check_spliter;
 }
 
+char *get_line(char *str, int *start) {
+    int start_pos = *start;
+    int end = start_pos;
+    bool inside = false;
+
+    int check;
+    for (;str[end]; end++) {
+        if (str[end] == '{')
+            inside = true;
+        if (str[end] == '}' && inside == true)
+            inside = false;
+        if (str[end] == '\n' && inside == false)
+            break;
+    }
+    if (!str[end] && inside == true) {
+        *start = -1;
+        return NULL;
+    }
+    char *return_str = ft_strdup_section(str, start_pos, end);
+    if (!return_str)
+        return NULL;
+    *start = end;
+    return return_str;
+}
+
+map *split_line_into_map(map *mp, char *line) {
+    char *pattern = NULL;
+    char *action = NULL;
+    bool regex = false;
+    int start = 0;
+    int pos = 0;
+
+    for (; line[pos] && (line[pos] == 32 || line[pos] == 9); pos++);
+    start = pos;
+
+    if (line[pos] == '"') {
+        int ending = find_char(line, '"', pos + 1, ft_strlen(line));
+        pos += ending + 1;
+    } else if (line[pos] == '[') {
+        int ending = find_char(line, ']', pos + 1, ft_strlen(line));
+        pos += ending + 1;
+    } else {
+        int ending = find_char(line, 32, pos + 1, ft_strlen(line));
+        pos += ending;
+    }
+
+    if (!line[pos]) {
+        action = ft_strdup("{ ECHO; }");
+        if (!action)
+            goto cleanup;
+    }
+
+    pattern = ft_strdup_section(line, start, pos);
+    if (!pattern)
+        goto cleanup;
+    for (; line[pos] && (line[pos] == 32 || line[pos] == 9); pos++);
+    if (!action) {
+        action = ft_strdup_section(line, pos, ft_strlen(line));
+        if (!action)
+            goto cleanup;
+    }
+
+    map *new_map = append_map_and_free(mp, pattern, action);
+    if (!new_map)
+        goto cleanup;
+    return new_map;
+
+    cleanup:
+        free(pattern);
+        free(action);
+        clear_map(mp);
+        return NULL;
+}
+
 void    shutdown(ft_lex *lex, bool error) {
-    if (lex->parts != NULL)
-        clear_lexer_parts(lex->parts);
+    // if (lex->parts != NULL)
+    //     clear_lexer_parts(lex->parts);
     if (lex->lex_string_parts != NULL)
         clear_lexer_string_parts(lex->lex_string_parts);
     lex->lex_string_parts = NULL;

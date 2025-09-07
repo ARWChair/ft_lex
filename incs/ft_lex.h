@@ -20,7 +20,7 @@ typedef struct map_content {
 }               map_content;
 
 typedef struct map {
-    map_content *map;
+    map_content *content;
     ssize_t map_size;
 }               map;
 
@@ -52,11 +52,14 @@ typedef struct ft_lex {
 }               ft_lex;
 
 // ---------- map.c ---------- \\'
-map *create_map();
-int append_map(map *map, char *pattern, char *action);
-int get_pos_in_map(map *map, char *pattern);
-int remove_map(map *map, char *pattern);
-int clear_map(map *map);
+map     *init_map();
+map     *create_map(ssize_t size);
+map     *append_map(map *map, char *pattern, char *action);
+map     *append_map_and_free(map *map, char *pattern, char *action);
+int     get_pos_in_map(map *map, char *pattern);
+int     remove_map(map *map, char *pattern);
+void    clear_map(map *map);
+void    print_map(map *old_map);
 
 // ---------- parts.c ---------- \\'
 void    clear_lexer_string_parts(lexer_string_parts *failed);
@@ -87,6 +90,8 @@ char    *replace_string_with_character(char *file, char *replace_string, int sta
 void    terminate_strings(char *file);
 int     skip_spaces_parts(char *file, int start);
 int     get_and_eliminate_part_spliter(char *file);
+char    *get_line(char *str, int *start);
+map     *split_line_into_map(map* mp, char *line);
 void    shutdown(ft_lex *lex, bool error);
 
 #endif
