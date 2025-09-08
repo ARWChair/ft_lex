@@ -3,13 +3,26 @@
 // ------------------- lexer_parts ------------------- \\'
 
 void clear_lexer_parts(lexer_parts *lex) {
-    // if (lex->middle) {
-    //     free(lex->middle->action);
-    //     free(lex->middle->pattern);
-    //     lex->middle->action = NULL;
-    //     lex->middle->pattern = NULL;
-    //     lex->middle = NULL;
-    // }
+    if (!lex)
+        return;
+    if (!lex->middle) {
+        free(lex);
+        lex = NULL;
+        return;
+    }
+    if (!lex->middle->pairs) {
+        free(lex->middle);
+        lex->middle = NULL;
+        free(lex);
+        lex = NULL;
+        return;
+    }
+    clear_map(lex->middle->pairs);
+    lex->middle->pairs = NULL;
+    free(lex->middle);
+    lex->middle = NULL;
+    free(lex);
+    lex = NULL;
 }
 
 bool format_header_part(ft_lex *lex) {
@@ -40,10 +53,24 @@ bool format_body_part(ft_lex *lex) {
         }
         free(line);
     }
-    // print_map(mp);
-    clear_map(mp);
-    // Am ende das hinzufuegen
-    // lex->parts->middle->pairs = mp;
+    if (!lex->parts) {
+        lex->parts = (lexer_parts *)malloc(sizeof(lexer_parts));
+        if (!lex->parts) {
+            clear_map(mp);
+            return false;
+        }
+        lex->parts->middle = NULL;
+    }
+    if (!lex->parts->middle) {
+        lex->parts->middle = (lexer_middle_struct *)malloc(sizeof(lexer_middle_struct));
+        if (!lex->parts->middle) {
+            clear_map(mp);
+            free(lex->parts);
+            return false;
+        }
+        lex->parts->middle->pairs = NULL;
+    }
+    lex->parts->middle->pairs = mp;
     return true;
 }
 
@@ -73,6 +100,9 @@ void clear_lexer_string_parts(lexer_string_parts *failed) {
     failed->header = NULL;
     failed->body = NULL;
     failed->footer = NULL;
+    if (failed)
+        free(failed);
+    failed = NULL;
 }
 
 

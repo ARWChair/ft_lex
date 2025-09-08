@@ -1,0 +1,33 @@
+ok also ist jeder character valid
+ChatGPT:
+
+Genau 👍
+
+In Lex/Flex gilt:
+
+Jedes einzelne Zeichen kann als Pattern stehen → es matcht dann genau dieses Zeichen.
+
+a    printf("A");
+1    printf("digit one");
+$    printf("Dollar");
+
+
+→ alles gültig.
+
+Ausnahme: ein paar Metazeichen haben in Patterns besondere Bedeutung und müssen ggf. escaped werden:
+
+. → „beliebiges Zeichen“
+
+*, +, ?, | → Quantoren/Alternativen
+
+[] → Character Classes
+
+^, $ → Anfang/Ende
+
+() → Gruppierung
+
+\ → Escape
+
+Wenn du also z. B. wirklich das Zeichen . selbst matchen willst, schreibst du:
+
+[.]   printf("dot");

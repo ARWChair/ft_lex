@@ -333,8 +333,8 @@ map *split_line_into_map(map *mp, char *line) {
 }
 
 void    shutdown(ft_lex *lex, bool error) {
-    // if (lex->parts != NULL)
-    //     clear_lexer_parts(lex->parts);
+    if (lex->parts != NULL)
+        clear_lexer_parts(lex->parts);
     if (lex->lex_string_parts != NULL)
         clear_lexer_string_parts(lex->lex_string_parts);
     lex->lex_string_parts = NULL;
