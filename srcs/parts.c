@@ -26,7 +26,55 @@ void clear_lexer_parts(lexer_parts *lex) {
 }
 
 bool format_header_part(ft_lex *lex) {
+    map *mp = NULL;
+    char **definition = NULL;
+    char *single_definition = NULL;
+    char *header = NULL;
+    
+    header = lex->lex_string_parts->header;
+    for (int pos = 0; header[pos]; pos++) {
+        if (header[pos] == '%' && header[pos + 1] != '{') {
+            write(2, "Error: Wrong formating in Header-part. No Character found after % sign\n", 71);
+            goto cleanup;
+        } else if (header[pos] == '%' && header[pos + 1] == '{') {
+            if (header[pos - 1] && header[pos - 1] != '\n') {
+                write(2, "Error: Opening definition must be after Newline\n", 48);
+                goto cleanup;
+            }
+            pos += 2;
+            if (header[pos] && header[pos] != '\n') {
+                write(2, "Error: Newline must be after definition opener\n", 47);
+                goto cleanup;
+            }
+            pos++;
+            single_definition = isolate_string(header, &pos);
+            if (!single_definition)
+                goto cleanup;
+            definition = append_string(definition, single_definition);
+            free(single_definition);
+            single_definition = NULL;
+        }
+        // if (header[pos] == '\n')
+    }
+    for (int i = 0; definition[i]; i++) {
+        printf("%s\n", definition[i]);
+    }
     return true;
+    cleanup:
+        if (!mp)
+            clear_map(mp);
+        if (definition != NULL) {
+            for (int i = 0; definition[i]; i++) {
+                free(definition[i]);
+                definition[i] = NULL;
+            }
+            free(definition);
+            definition = NULL;
+        }
+        free(single_definition);
+        single_definition = NULL;
+        mp = NULL;
+        return false;
 }
 
 bool format_body_part(ft_lex *lex) {
@@ -34,7 +82,7 @@ bool format_body_part(ft_lex *lex) {
     if (!mp)
         shutdown(lex, true);
 
-    char *line;
+    char *line = NULL;
     int pos = 0;
 
     for (; lex->lex_string_parts->body[pos]; pos++) {
@@ -52,6 +100,7 @@ bool format_body_part(ft_lex *lex) {
             shutdown(lex, true);
         }
         free(line);
+        line = NULL;
     }
     if (!lex->parts) {
         lex->parts = (lexer_parts *)malloc(sizeof(lexer_parts));
@@ -135,7 +184,6 @@ bool check_for_parts(ft_lex *lex, char *temp) {
     temp_part->body = ft_strdup_section(lex->file_content, skip_spaces_parts(lex->file_content, check_header) + 1, check_body);
     if (!temp_part->body)
         goto cleanup;
-    
     int footer_section = skip_spaces_parts(lex->file_content, check_body);
     int file_size = ft_strlen(lex->file_content);
     if (file_size - footer_section == 0)
@@ -162,7 +210,7 @@ void    split_in_parts(ft_lex *lex) {
     char *temp = ft_strdup(lex->file_content);
     if (!temp)
         shutdown(lex, true);
-
+    
     terminate_strings(temp);
     if (check_for_parts(lex, temp) == false) {
         free(temp);

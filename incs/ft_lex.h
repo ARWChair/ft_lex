@@ -9,38 +9,44 @@
 # include <stdbool.h>
 
 typedef struct lexer_string_parts {
-    char *header;
-    char *body;
-    char *footer;
+    char                    *header;
+    char                    *body;
+    char                    *footer;
 }               lexer_string_parts;
 
 typedef struct map_content {
-    char *pattern;
-    char *action;
+    char                    *pattern;
+    char                    *action;
 }               map_content;
 
 typedef struct map {
-    map_content *content;
-    ssize_t map_size;
+    map_content             *content;
+    ssize_t                 map_size;
 }               map;
 
+typedef struct lexer_top_struct {
+    char                    **definitions;
+    map                     *pairs;
+}               lexer_top_struct;
+
 typedef struct lexer_middle_struct {
-    map *pairs;
+    map                     *pairs;
 }               lexer_middle_struct;
 
 typedef struct lexer_parts {
+    lexer_top_struct        *top;
     lexer_middle_struct     *middle;
 }               lexer_parts;
 
 typedef struct lexer_strings_content {
-    int start;
-    int end;
-    char *content;
+    int                     start;
+    int                     end;
+    char                    *content;
 }               lexer_strings_content;
 
 typedef struct lexer_strings {
-    int ammount;
-    lexer_strings_content *strings;
+    int                     ammount;
+    lexer_strings_content   *strings;
 }               lexer_strings;
 
 typedef struct ft_lex {
@@ -92,6 +98,8 @@ int     skip_spaces_parts(char *file, int start);
 int     get_and_eliminate_part_spliter(char *file);
 char    *get_line(char *str, int *start);
 map     *split_line_into_map(map* mp, char *line);
+char    *isolate_string(char *header, int *pos);
+char    **append_string(char **base, char *new_string);
 void    shutdown(ft_lex *lex, bool error);
 
 #endif

@@ -239,7 +239,7 @@ int skip_spaces_parts(char *file, int start) {
     int start_pos = start;
 
     for(; file[start_pos]; start_pos++) {
-        if (file[file[start_pos + 1] == 0 && start_pos + 1] == '\n')
+        if (file[start_pos + 1] != 0 && file[start_pos + 1] == '\n')
             continue;
         start_pos = start_pos + 2;
         break;
@@ -330,6 +330,68 @@ map *split_line_into_map(map *mp, char *line) {
         free(action);
         clear_map(mp);
         return NULL;
+}
+
+char    *isolate_string(char *header, int *pos) {
+    int temp = *pos;
+    bool closing = false;
+
+    for (; header[temp]; temp++) {
+        if (header[temp] == '%' && header[temp + 1] && header[temp + 1] == '}') {
+            closing = true;
+            break;
+        }
+    }
+    if (!header[temp] && closing == false) {
+        write(2, "Error: No closing characters found for definition\n", 50);
+        return NULL;
+    }
+    if (header[temp + 2] && header[temp + 2] != '\n') {
+        write(2, "Error: No character allowed after closing definition\n", 53);
+        return NULL;
+    }
+    if (header[temp - 1] && header[temp - 1] != '\n') {
+        write(2, "Error: No character allowed after closing definition\n", 53);
+        return NULL;
+    }
+    char *returning = ft_strdup_section(header, *pos, temp - 1);
+    if (!returning)
+        return NULL;
+    *pos = temp + 2;
+    return returning;
+}
+
+char **append_string(char **base, char *new_string) {
+    if (base == NULL) {
+        char **return_string = (char **)malloc((sizeof(char *) * 2));
+        if (!return_string)
+            return NULL;
+        return_string[0] = ft_strdup(new_string);
+        if (!return_string[0]) {
+            free(return_string);
+            return_string = NULL;
+            return false;
+        }
+        return_string[1] = 0;
+        return return_string;
+    }
+    
+    int len = 0;
+    for (; base[len]; len++);
+
+    char **return_string = (char **)malloc(sizeof(char *) * (len + 2));
+    if (!return_string)
+        return NULL;
+    int pos = 0;
+    printf("len: %i\n", len);
+    for (; pos < len; pos++) {
+        return_string[pos] = base[pos];
+    }
+    printf("%i\n", len);
+    return_string[pos++] = ft_strdup(new_string);
+    return_string[pos] = 0;
+    free(base);
+    return return_string;
 }
 
 void    shutdown(ft_lex *lex, bool error) {

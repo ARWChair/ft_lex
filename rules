@@ -31,3 +31,11 @@ Ausnahme: ein paar Metazeichen haben in Patterns besondere Bedeutung und müssen
 Wenn du also z. B. wirklich das Zeichen . selbst matchen willst, schreibst du:
 
 [.]   printf("dot");
+
+
+
+
+
+
+WORDS in caps
+all the other things about .c or .h in %{}%
