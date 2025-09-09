@@ -283,6 +283,48 @@ char *get_line(char *str, int *start) {
     return return_str;
 }
 
+char    *get_makro(char *header, int *start) {
+    int start_pos = *start;
+    int end = start_pos;
+    bool format_correct = false;
+
+    if (!(header[end] >= 'a' && header[end] <= 'z' || header[end] >= 'A' && header[end] <= 'Z')) {
+        write(2, "Error: Name of Makro staring with invalid Character. Only valid char or Newline in line allowed\n", 96);
+        return NULL;
+    }
+    end++;
+    for (; header[end]; end++) {
+        if (header[end] == '\n' && format_correct == false) {
+            write(2, "Error: No value found for Makro\n", 32);
+            *start = end;
+            return NULL;
+        }
+        if (header[end] == 32 || header[end] == 9) {
+            end = skip_spaces(header, end);
+            if (skip_spaces(header, end) == 10) {
+                write(2, "Error: No value found for Makro\n", 32);
+                *start = end;
+                return NULL;
+            }
+        }
+    }
+    if (header[end] == 0 && format_correct == false) {
+        write(2, "Error: No value found for Makro\n", 32);
+        *start = end;
+        return NULL;
+    }
+    *start = end;
+    return NULL;
+}
+
+int     skip_spaces(char *header, int pos) {
+    for (; header[pos]; pos++) {
+        if (header[pos] != 32 && header[pos] != 9)
+            break;
+    }
+    return pos;
+}
+
 map *split_line_into_map(map *mp, char *line) {
     char *pattern = NULL;
     char *action = NULL;

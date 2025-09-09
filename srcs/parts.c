@@ -30,6 +30,7 @@ bool format_header_part(ft_lex *lex) {
     char **definition = NULL;
     char *single_definition = NULL;
     char *header = NULL;
+    char *line = NULL;
     
     header = lex->lex_string_parts->header;
     for (int pos = 0; header[pos]; pos++) {
@@ -53,12 +54,19 @@ bool format_header_part(ft_lex *lex) {
             definition = append_string(definition, single_definition);
             free(single_definition);
             single_definition = NULL;
+            if (header[pos] != 0)
+                pos++;
         }
-        // if (header[pos] == '\n')
+        if (header[pos] == '\n')
+            continue;
+
+        printf("%i\n", pos);
+        line = get_makro(header, &pos);
+        printf("%i\n", pos);
     }
-    for (int i = 0; definition[i]; i++) {
-        printf("%s\n", definition[i]);
-    }
+    // for (int i = 0; definition[i]; i++) {
+    //     printf("%s\n", definition[i]);
+    // }
     return true;
     cleanup:
         if (!mp)

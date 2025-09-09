@@ -71,7 +71,7 @@ int get_pos_in_map(map *old_map, char *pattern) {
     if (old_map->map_size == 0)
         return 0;
     int pattern_pos;
-    for (int map_pos = 0; map_pos < old_map->map_size; map_pos) {
+    for (int map_pos = 0; map_pos < old_map->map_size; map_pos++) {
         pattern_pos = 0;
         for (; old_map->content[map_pos].pattern[pattern_pos]; pattern_pos++) {
             if (old_map->content[map_pos].pattern[pattern_pos] != pattern[pattern_pos])

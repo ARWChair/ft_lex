@@ -96,7 +96,9 @@ char    *replace_string_with_character(char *file, char *replace_string, int sta
 void    terminate_strings(char *file);
 int     skip_spaces_parts(char *file, int start);
 int     get_and_eliminate_part_spliter(char *file);
+int     skip_spaces(char *header, int pos);
 char    *get_line(char *str, int *start);
+char    *get_makro(char *header, int *start);
 map     *split_line_into_map(map* mp, char *line);
 char    *isolate_string(char *header, int *pos);
 char    **append_string(char **base, char *new_string);
