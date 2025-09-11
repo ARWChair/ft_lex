@@ -109,5 +109,12 @@ void    shutdown(ft_lex *lex, bool error);
 void    makro_starting_invalid_char();
 void    makro_invalid_name();
 void    makro_no_value();
+void    header_invalid_definition_opener();
+void    header_definition_not_on_newline();
+void    header_newline_after_definition_opener();
+void    parts_multiline_open();
+void    utils_no_closing_definition();
+void    utils_no_character_allowed_after_closing();
+void    utils_no_character_allowed_before_closing();
 
 #endif

@@ -444,15 +444,15 @@ char    *isolate_string(char *header, int *pos) {
         }
     }
     if (!header[temp] && closing == false) {
-        write(2, "Error: No closing characters found for definition\n", 50);
+        utils_no_closing_definition();
         return NULL;
     }
     if (header[temp + 2] && header[temp + 2] != '\n') {
-        write(2, "Error: No character allowed after closing definition\n", 53);
+        utils_no_character_allowed_after_closing();
         return NULL;
     }
     if (header[temp - 1] && header[temp - 1] != '\n') {
-        write(2, "Error: No character allowed after closing definition\n", 53);
+        utils_no_character_allowed_before_closing();
         return NULL;
     }
     char *returning = ft_strdup_section(header, *pos, temp - 1);

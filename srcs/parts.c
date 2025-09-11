@@ -36,16 +36,16 @@ bool format_header_part(ft_lex *lex) {
     header = lex->lex_string_parts->header;
     for (int pos = 0; header[pos]; pos++) {
         if (header[pos] == '%' && header[pos + 1] != '{') {
-            write(2, "Error: Wrong formating in Header-part. No Character found after % sign\n", 71);
+            header_invalid_definition_opener();
             goto cleanup;
         } else if (header[pos] == '%' && header[pos + 1] == '{') {
             if (header[pos - 1] && header[pos - 1] != '\n') {
-                write(2, "Error: Opening definition must be after Newline\n", 48);
+                header_definition_not_on_newline()
                 goto cleanup;
             }
             pos += 2;
             if (header[pos] && header[pos] != '\n') {
-                write(2, "Error: Newline must be after definition opener\n", 47);
+                header_newline_after_definition_opener();
                 goto cleanup;
             }
             pos++;
@@ -108,7 +108,7 @@ bool format_body_part(ft_lex *lex) {
     for (; lex->lex_string_parts->body[pos]; pos++) {
         line = get_line(lex->lex_string_parts->body, &pos);
         if (pos == -1 && !line) {
-            write(2, "Error: Multiline action not closed\n", 35);
+            parts_multiline_open();
             shutdown(lex, true);
         }
         if (!line)

@@ -11,3 +11,31 @@ void makro_invalid_name() {
 void makro_no_value() {
     write(2, "Error: Value of Makro not found.\n", 33);
 }
+
+void header_invalid_definition_opener() {
+    write(2, "Error: Wrong formating in Header-part. No matching character found after % sign.\n", 81);
+}
+
+void header_definition_not_on_newline() {
+    write(2, "Error: Opening definition must be after Newline.\n", 49);
+}
+
+void header_newline_after_definition_opener() {
+    write(2, "Error: Newline must be after definition opener.\n", 48);
+}
+
+void parts_multiline_open() {
+    write(2, "Error: Multiline action not closed.\n", 36);
+}
+
+void utils_no_closing_definition() {
+    write(2, "Error: No closing characters found for definition.\n", 51);
+}
+
+void utils_no_character_allowed_after_closing() {
+    write(2, "Error: No character allowed after closing definition.\n", 54);
+}
+
+void utils_no_character_allowed_before_closing() {
+    write(2, "Error: No character allowed before closing definition.\n", 55);
+}
