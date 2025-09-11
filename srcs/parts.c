@@ -40,7 +40,7 @@ bool format_header_part(ft_lex *lex) {
             goto cleanup;
         } else if (header[pos] == '%' && header[pos + 1] == '{') {
             if (header[pos - 1] && header[pos - 1] != '\n') {
-                header_definition_not_on_newline()
+                header_definition_not_on_newline();
                 goto cleanup;
             }
             pos += 2;
