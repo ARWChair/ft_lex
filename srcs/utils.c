@@ -283,46 +283,105 @@ char *get_line(char *str, int *start) {
     return return_str;
 }
 
-char    *get_makro(char *header, int *start) {
-    int start_pos = *start;
-    int end = start_pos;
-    bool format_correct = false;
-
-    if (!(header[end] >= 'a' && header[end] <= 'z' || header[end] >= 'A' && header[end] <= 'Z')) {
-        write(2, "Error: Name of Makro staring with invalid Character. Only valid char or Newline in line allowed\n", 96);
+char *get_makro_head(char *header, int *start_pos, int *end) {
+    if (header[*end] <= 'a' && header[*end] >= 'z' && header[*end] <= 'A' && header[*end] >= 'Z') {
+        makro_starting_invalid_char();
         return NULL;
     }
-    end++;
-    for (; header[end]; end++) {
-        if (header[end] == '\n' && format_correct == false) {
-            write(2, "Error: No value found for Makro\n", 32);
-            *start = end;
+    (*end)++;
+    for (; header[*end]; (*end)++) {
+        if (header[*end] == 32 || header[*end] == 9 || header[*end] == 10)
+            break;
+        if (!(header[*end] >= 'a' && header[*end] <= 'z' || header[*end] >= 'A' && header[*end] <= 'Z'
+            || header[*end] >= '0' && header[*end] <= '9' || header[*end] == '_')) {
+            makro_invalid_name();
             return NULL;
         }
-        if (header[end] == 32 || header[end] == 9) {
-            end = skip_spaces(header, end);
-            if (skip_spaces(header, end) == 10) {
-                write(2, "Error: No value found for Makro\n", 32);
-                *start = end;
-                return NULL;
-            }
-        }
     }
-    if (header[end] == 0 && format_correct == false) {
-        write(2, "Error: No value found for Makro\n", 32);
-        *start = end;
+    if (!header[*end]) {
+        makro_no_value();
         return NULL;
     }
-    *start = end;
-    return NULL;
+    char *name = ft_strdup_section(header, *start_pos, *end);
+    if (!name)
+        return NULL;
+    return name;
 }
 
-int     skip_spaces(char *header, int pos) {
-    for (; header[pos]; pos++) {
-        if (header[pos] != 32 && header[pos] != 9)
+char    **get_makro(char *header, int *start) {
+    int start_pos = *start;
+    int end = start_pos;
+    char *name = NULL;
+
+    name = get_makro_head(header, &start_pos, &end);
+    if (!name)
+        return NULL;
+    char **makro = append_string(NULL, name);
+    if (!makro) {
+        free(name);
+        return NULL;
+    }
+
+    char *value = NULL;
+    if (header[end] == '\n' || !header[end]) {
+        makro_no_value();
+        goto cleanup;
+    }
+    for (; header[end]; end++) {
+        if (header[end] == 10 || (header[end] != 32 && header[end] != 9))
+           break;
+    }
+    if (!(header[end] && header[end] != 32 && header[end] != 9 && header[end] != 10)) {
+        makro_no_value();
+        goto cleanup;
+    }
+    start_pos = end;
+    for (; header[end]; end++)
+        if (header[end] == 10 || header[end] == 32 || header[end] == 9)
+            break;
+    value = ft_strdup_section(header, start_pos, end);
+    if (!value)
+        goto cleanup;
+    makro = append_string(makro, value);
+    if (!makro)
+        goto cleanup;
+    for (; header[end]; end++) {
+        if (header[end] == 10)
+            break;
+        if (header[end] != 32 && header[end] != 9) {
+            makro_no_value();
+            goto cleanup;
+        }
+    }
+    *start = end;
+    return makro;
+
+    cleanup:
+        if (makro) {
+            if (makro[1]) {
+                free(makro[1]);
+                makro[1] = NULL;
+            }
+            if (makro[0]) {
+                free(makro[0]);
+                makro[0] = NULL;
+            }
+            free(makro);
+            makro = NULL;
+        }
+        if (value) {
+            free(value);
+            value = NULL;
+        }
+        return NULL;
+}
+
+int skip_spaces(char *header, int *pos) {
+    for (; header[*pos]; *(pos++)) {
+        if (header[*pos] != 32 && header[*pos] != 9)
             break;
     }
-    return pos;
+    return header[*pos];
 }
 
 map *split_line_into_map(map *mp, char *line) {
@@ -422,14 +481,19 @@ char **append_string(char **base, char *new_string) {
     for (; base[len]; len++);
 
     char **return_string = (char **)malloc(sizeof(char *) * (len + 2));
-    if (!return_string)
+    if (!return_string) {
+        for (int temp = 0; base[temp]; temp++) {
+            free(base[temp]);
+            base[temp] = NULL;
+        }
+        free(base);
+        base = NULL;
         return NULL;
+    }
     int pos = 0;
-    printf("len: %i\n", len);
     for (; pos < len; pos++) {
         return_string[pos] = base[pos];
     }
-    printf("%i\n", len);
     return_string[pos++] = ft_strdup(new_string);
     return_string[pos] = 0;
     free(base);

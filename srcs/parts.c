@@ -30,8 +30,9 @@ bool format_header_part(ft_lex *lex) {
     char **definition = NULL;
     char *single_definition = NULL;
     char *header = NULL;
-    char *line = NULL;
+    char **line = NULL;
     
+    mp = init_map();
     header = lex->lex_string_parts->header;
     for (int pos = 0; header[pos]; pos++) {
         if (header[pos] == '%' && header[pos + 1] != '{') {
@@ -60,16 +61,19 @@ bool format_header_part(ft_lex *lex) {
         if (header[pos] == '\n')
             continue;
 
-        printf("%i\n", pos);
         line = get_makro(header, &pos);
-        printf("%i\n", pos);
+        if (!line)
+            goto cleanup;
+        mp = append_map(mp, line[0], line[1]);
+        if (!mp)
+            goto cleanup;
     }
     // for (int i = 0; definition[i]; i++) {
     //     printf("%s\n", definition[i]);
     // }
     return true;
     cleanup:
-        if (!mp)
+        if (mp)
             clear_map(mp);
         if (definition != NULL) {
             for (int i = 0; definition[i]; i++) {
@@ -80,6 +84,14 @@ bool format_header_part(ft_lex *lex) {
             definition = NULL;
         }
         free(single_definition);
+        if (line) {
+            free(line[0]);
+            line[0] = NULL;
+            free(line[1]);
+            line[1] = NULL;
+            free(line);
+            line = NULL;
+        }
         single_definition = NULL;
         mp = NULL;
         return false;
