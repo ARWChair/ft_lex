@@ -39,3 +39,11 @@ void utils_no_character_allowed_after_closing() {
 void utils_no_character_allowed_before_closing() {
     write(2, "Error: No character allowed before closing definition.\n", 55);
 }
+
+void utils_invalid_char_after_action() {
+    write(2, "Error: Invalid character found after action.\n", 45);
+}
+
+void parts_same_pattern_twice() {
+    write(2, "Error: The same regex-makro can't be in the list twice.\n", 56);
+}

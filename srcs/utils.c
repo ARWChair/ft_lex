@@ -324,6 +324,7 @@ char    **get_makro(char *header, int *start) {
 
     char *value = NULL;
     if (header[end] == '\n' || !header[end]) {
+        free(name);
         makro_no_value();
         goto cleanup;
     }
@@ -332,6 +333,7 @@ char    **get_makro(char *header, int *start) {
            break;
     }
     if (!(header[end] && header[end] != 32 && header[end] != 9 && header[end] != 10)) {
+        free(name);
         makro_no_value();
         goto cleanup;
     }
@@ -340,8 +342,10 @@ char    **get_makro(char *header, int *start) {
         if (header[end] == 10 || header[end] == 32 || header[end] == 9)
             break;
     value = ft_strdup_section(header, start_pos, end);
-    if (!value)
+    if (!value) {
+        free(name);
         goto cleanup;
+    }
     makro = append_string(makro, value);
     if (!makro)
         goto cleanup;
@@ -415,6 +419,23 @@ map *split_line_into_map(map *mp, char *line) {
     if (!pattern)
         goto cleanup;
     for (; line[pos] && (line[pos] == 32 || line[pos] == 9); pos++);
+    int end = pos;
+    for (; line[end]; end++) {
+        if (line[end] == '\n')
+            break;
+        if (line[end] == 32 || line[end] == 9) {
+            for (; line[end]; end++) {
+                if (line[end] == '\n') {
+                    end--;
+                    break;
+                } 
+                if (line[end] != 32 && line[end] != 9) {
+                    utils_invalid_char_after_action();
+                    goto cleanup;
+                }
+            }
+        }
+    }
     if (!action) {
         action = ft_strdup_section(line, pos, ft_strlen(line));
         if (!action)
@@ -467,12 +488,7 @@ char **append_string(char **base, char *new_string) {
         char **return_string = (char **)malloc((sizeof(char *) * 2));
         if (!return_string)
             return NULL;
-        return_string[0] = ft_strdup(new_string);
-        if (!return_string[0]) {
-            free(return_string);
-            return_string = NULL;
-            return false;
-        }
+        return_string[0] = new_string;
         return_string[1] = 0;
         return return_string;
     }
@@ -494,10 +510,48 @@ char **append_string(char **base, char *new_string) {
     for (; pos < len; pos++) {
         return_string[pos] = base[pos];
     }
-    return_string[pos++] = ft_strdup(new_string);
+    return_string[pos++] = new_string;
     return_string[pos] = 0;
     free(base);
     return return_string;
+}
+
+bool check_for_multiple_makros(map *mp) {
+    char *current = NULL;
+    char *next = NULL;
+    ssize_t inner;
+    ssize_t pos;
+    int check;
+
+    for (pos = 0; pos < mp->map_size; pos++) {
+        current = mp->content[pos].pattern;
+        for (inner = 0; inner < mp->map_size; inner++) {
+            if (inner == pos)
+                continue;
+            next = mp->content[inner].pattern;
+            if (ft_strlen(next) != ft_strlen(current)) {
+                break;
+            }
+            for (check = 0; current[check]; check++) {
+                if (current[check] != next[check])
+                    break;
+            }
+            if (!current[check])
+                return true;
+        }
+    }
+    return false;
+}
+
+void double_free(char **to_free) {
+    if (to_free == NULL)
+        return;
+    for (int i = 0; to_free[i]; i++) {
+        free(to_free[i]);
+        to_free[i] = NULL;
+    }
+    free(to_free);
+    to_free = NULL;
 }
 
 void    shutdown(ft_lex *lex, bool error) {

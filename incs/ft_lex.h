@@ -102,7 +102,9 @@ char    *get_makro_head(char *header, int *start_pos, int *end);
 char    **get_makro(char *header, int *start);
 map     *split_line_into_map(map* mp, char *line);
 char    *isolate_string(char *header, int *pos);
+bool    check_for_multiple_makros(map *mp);
 char    **append_string(char **base, char *new_string);
+void    double_free(char **to_free);
 void    shutdown(ft_lex *lex, bool error);
 
 // ---------- stderr.c ---------- \\'
@@ -113,8 +115,10 @@ void    header_invalid_definition_opener();
 void    header_definition_not_on_newline();
 void    header_newline_after_definition_opener();
 void    parts_multiline_open();
+void    parts_same_pattern_twice();
 void    utils_no_closing_definition();
 void    utils_no_character_allowed_after_closing();
 void    utils_no_character_allowed_before_closing();
+void    utils_invalid_char_after_action();
 
 #endif

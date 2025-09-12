@@ -3,26 +3,28 @@
 // ------------------- lexer_parts ------------------- \\'
 
 void clear_lexer_parts(lexer_parts *lex) {
-    if (!lex)
-        return;
-    if (!lex->middle) {
-        free(lex);
-        lex = NULL;
-        return;
+    if (lex->top->pairs) {
+        clear_map(lex->top->pairs);
+        lex->top->pairs = NULL;
     }
-    if (!lex->middle->pairs) {
+    if (lex->top->definitions)
+        double_free(lex->top->definitions);
+    if (lex->top) {
+        free(lex->top);
+        lex->top = NULL;
+    }
+    if (lex->middle->pairs) {
+        clear_map(lex->middle->pairs);
+        lex->middle->pairs = NULL;
+    }
+    if (lex->middle) {
         free(lex->middle);
         lex->middle = NULL;
+    }
+    if (lex) {
         free(lex);
         lex = NULL;
-        return;
     }
-    clear_map(lex->middle->pairs);
-    lex->middle->pairs = NULL;
-    free(lex->middle);
-    lex->middle = NULL;
-    free(lex);
-    lex = NULL;
 }
 
 bool format_header_part(ft_lex *lex) {
@@ -65,12 +67,48 @@ bool format_header_part(ft_lex *lex) {
         if (!line)
             goto cleanup;
         mp = append_map(mp, line[0], line[1]);
-        if (!mp)
+        if (!mp) {
+            double_free(line);
             goto cleanup;
+        }
+        double_free(line);
     }
-    // for (int i = 0; definition[i]; i++) {
-    //     printf("%s\n", definition[i]);
-    // }
+    print_map(mp);
+    if (!lex->parts) {
+        lex->parts = (lexer_parts *)malloc(sizeof(lexer_parts));
+        if (!lex->parts)
+            goto cleanup;
+        lex->parts->top = NULL;
+        lex->parts->middle = NULL;
+    }
+    if (!lex->parts->top) {
+        lex->parts->top = (lexer_top_struct *)malloc(sizeof(lexer_top_struct));
+        if (!lex->parts->top) {
+            free(lex->parts);
+            lex->parts = NULL;
+            goto cleanup;
+        }
+        lex->parts->top->definitions = NULL;
+        lex->parts->top->pairs = NULL;
+    }
+    if (lex->parts->top->pairs) {
+        clear_map(lex->parts->top->pairs);
+        lex->parts->top->pairs = NULL;
+    }
+    lex->parts->top->pairs = mp;
+    if (lex->parts->top->definitions) {
+        for (int i = 0; lex->parts->top->definitions[i]; i++) {
+            free(lex->parts->top->definitions[i]);
+            lex->parts->top->definitions[i] = NULL;
+        }
+        free(lex->parts->top->definitions);
+        lex->parts->top->definitions = NULL;
+    }
+    lex->parts->top->definitions = definition;
+    if (check_for_multiple_makros(mp) == true) {
+        parts_same_pattern_twice();
+        goto cleanup;
+    }
     return true;
     cleanup:
         if (mp)
@@ -128,6 +166,7 @@ bool format_body_part(ft_lex *lex) {
             clear_map(mp);
             return false;
         }
+        lex->parts->top = NULL;
         lex->parts->middle = NULL;
     }
     if (!lex->parts->middle) {
