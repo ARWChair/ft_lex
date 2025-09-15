@@ -73,6 +73,7 @@ void    clear_lexer_parts(lexer_parts *lex);
 void    split_in_parts(ft_lex *lex);
 bool    check_for_parts(ft_lex *lex, char *temp);
 bool    format_header_part(ft_lex *lex);
+bool    check_valid_makros(lexer_top_struct *lex);
 bool    format_body_part(ft_lex *lex);
 bool    format_footer_part(ft_lex *lex);
 void    split_parts(ft_lex *lex);
@@ -104,6 +105,8 @@ map     *split_line_into_map(map* mp, char *line);
 char    *isolate_string(char *header, int *pos);
 bool    check_for_multiple_makros(map *mp);
 char    **append_string(char **base, char *new_string);
+bool    transform_makro_string(lexer_top_struct *lex, char *check, ssize_t pos);
+bool    check_for_closing_regex(lexer_top_struct *lex, char *check);
 void    double_free(char **to_free);
 void    shutdown(ft_lex *lex, bool error);
 
@@ -116,9 +119,14 @@ void    header_definition_not_on_newline();
 void    header_newline_after_definition_opener();
 void    parts_multiline_open();
 void    parts_same_pattern_twice();
+void    parts_trailing_escape_character();
 void    utils_no_closing_definition();
 void    utils_no_character_allowed_after_closing();
 void    utils_no_character_allowed_before_closing();
 void    utils_invalid_char_after_action();
+void    utils_regex_no_closing();
+void    utils_regex_too_many_opening();
+void    utils_regex_too_many_closing();
+void    utils_invalid_escape_character();
 
-#endif
+    #endif

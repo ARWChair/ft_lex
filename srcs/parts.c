@@ -13,7 +13,7 @@ void clear_lexer_parts(lexer_parts *lex) {
         free(lex->top);
         lex->top = NULL;
     }
-    if (lex->middle->pairs) {
+    if (lex->middle && lex->middle->pairs) {
         clear_map(lex->middle->pairs);
         lex->middle->pairs = NULL;
     }
@@ -73,7 +73,6 @@ bool format_header_part(ft_lex *lex) {
         }
         double_free(line);
     }
-    print_map(mp);
     if (!lex->parts) {
         lex->parts = (lexer_parts *)malloc(sizeof(lexer_parts));
         if (!lex->parts)
@@ -122,17 +121,30 @@ bool format_header_part(ft_lex *lex) {
             definition = NULL;
         }
         free(single_definition);
-        if (line) {
-            free(line[0]);
-            line[0] = NULL;
-            free(line[1]);
-            line[1] = NULL;
-            free(line);
-            line = NULL;
-        }
+        if (line)
+            double_free(line);
         single_definition = NULL;
         mp = NULL;
         return false;
+}
+
+bool check_valid_makros(lexer_top_struct *lex) {
+    char *check = NULL;
+
+    for (ssize_t pos = 0; pos < lex->pairs->map_size; pos++) {
+        check = lex->pairs->content[pos].action;
+        if (check[0] == '\\')
+            if (transform_makro_string(lex, check, pos) == false)
+                return false;
+            else {
+                pos--;
+                continue;
+            }
+        if (check[0] == '[')
+            if (check_for_closing_regex(lex, check) == false)
+                return false;
+    }
+    return true;
 }
 
 bool format_body_part(ft_lex *lex) {
@@ -188,6 +200,8 @@ bool format_footer_part(ft_lex *lex) {
 
 void split_parts(ft_lex *lex) {
     if (format_header_part(lex) == false)
+        shutdown(lex, true);
+    if (check_valid_makros(lex->parts->top) == false)
         shutdown(lex, true);
     if (format_body_part(lex) == false)
         shutdown(lex, true);

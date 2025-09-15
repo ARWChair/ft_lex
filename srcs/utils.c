@@ -543,6 +543,69 @@ bool check_for_multiple_makros(map *mp) {
     return false;
 }
 
+bool transform_makro_string(lexer_top_struct *lex, char *check, ssize_t pos) {
+    if (!check)
+        return false;
+    size_t len = ft_strlen(check);
+    if (len < 2) {
+        parts_trailing_escape_character();
+        return false;
+    }
+    char *new_string = (char *)malloc(sizeof(char) * (len + 2));
+    if (!new_string)
+        return false;
+    size_t i = 1;
+    new_string[0] = '"';
+    for (; i < len; i++)
+        new_string[i] = check[i];
+    new_string[i++] = '"';
+    new_string[i] = 0;
+    free(check);
+    lex->pairs->content[pos].action = new_string;
+    return true;
+}
+
+// Maybe rewrite
+bool check_for_closing_regex(lexer_top_struct *lex, char *check) {
+    bool found = false;
+    bool escape_sequence = false;
+    int escape_chars = 0;
+    char compare;
+
+    for (int pos = 0; check[pos]; pos++) {
+        if (check[pos] == '\\')
+            escape_chars++;
+        if (check[pos] == '\\' && check[pos + 1]) {
+            compare = check[pos + 1];
+            if (compare != '.' && compare != '\\' && compare != '"' && compare != '\''
+                && compare != 'n' && compare != 'r' && compare != 't' && compare != 'b'
+                && compare != 'a' && compare != 'f' && compare != 'v' && compare != 'e'
+                && compare != '^' && compare != ']' && compare != '-' && compare != '*'
+                && compare != '+' && compare != '?' && compare != '[' && compare != '('
+                && compare != ')' && compare != '|' && compare != '$') {
+                utils_invalid_escape_character();
+                return false;
+            } else {
+                escape_chars--;
+                if (compare == ']')
+                    found = !found;
+                pos++;
+            }
+        }
+        if (check[pos] == ']')
+            found = !found;
+    }
+    if (found == false) {
+        utils_regex_no_closing();
+        return false;
+    }
+    if (escape_chars % 2 != 0 && escape_chars > 0) {
+        utils_invalid_escape_character();
+        return false;
+    }
+    return true;
+}
+
 void double_free(char **to_free) {
     if (to_free == NULL)
         return;

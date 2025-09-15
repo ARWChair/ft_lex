@@ -1,6 +1,6 @@
 check in body, if there is after the action a space and then an invaid input ✅
 check if in header there is a regex makro more than once ✅
-check if the value of a regex is valid ❌
+check if the value of a regex is valid ⏳
 change {name} in body with the value of the makro ❌
 implement body part ❌
 

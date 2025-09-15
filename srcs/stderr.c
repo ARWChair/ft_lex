@@ -47,3 +47,23 @@ void utils_invalid_char_after_action() {
 void parts_same_pattern_twice() {
     write(2, "Error: The same regex-makro can't be in the list twice.\n", 56);
 }
+
+void parts_trailing_escape_character() {
+    write(2, "Error: Trailing escape character found in Makros.\n", 50);
+}
+
+void utils_regex_no_closing() {
+    write(2, "Error: Regex hax no closing quote.\n", 35);
+}
+
+void utils_regex_too_many_opening() {
+    write(2, "Error: Regex has to many opening quotes.\n", 41);
+}
+
+void utils_regex_too_many_closing() {
+    write(2, "Error: Regex has to many closing quotes.\n", 41);
+}
+
+void utils_invalid_escape_character() {
+    write(2, "Error: Regex has an invalid escape character.\n", 46);
+}
