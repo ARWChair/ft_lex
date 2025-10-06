@@ -203,31 +203,32 @@ bool is_closing_quote(char *str, int start, char quote) {
             return true;
         if (str[start] == '\\')
             break;
-        
     }
     return false;
 }
 
-// search to right side till finding a '")' or '" ,'. Jump over '"\'. Do same for right side
-int is_new_part(char *file, int occurrence) {
-    int start = occurrence;
-    int right_dquote = find_char(file, '"', start, -1);
-    bool check_closing = is_closing_quote(file, start, '"');
-    int right_clambs = find_char(file, ')', start, -1);
-    if (right_dquote != right_clambs - 1)
-        return start;
-    return -1;
-    // return occurrence;
-}
-
 void terminate_strings(char *file) {
+    int start;
+    int ending;
+
     for (int pos = 0; file[pos]; pos++) {
         if (file[pos] != '"')
             continue;
         if (is_closing_quote(file, pos - 1, '"') == false)
             continue;
-        int ending = find_char(file, '"', pos + 1, ft_strlen(file));
-        int start = pos + 1;
+        ending = find_char(file, '"', pos + 1, ft_strlen(file));
+        start = pos + 1;
+        for (; start < ending; start++) {
+            if (file[start] == 10)
+                break;
+        }
+        if (start != ending) {
+            file[pos] = 'X';
+            pos -= 1;
+            continue;
+        } else {
+            start = pos + 1;
+        }
         for (; file[start] && start < ending; start++) {
             file[start] = 'X';
         }
@@ -321,10 +322,8 @@ char    **get_makro(char *header, int *start) {
         free(name);
         return NULL;
     }
-
     char *value = NULL;
     if (header[end] == '\n' || !header[end]) {
-        free(name);
         makro_no_value();
         goto cleanup;
     }
@@ -333,19 +332,40 @@ char    **get_makro(char *header, int *start) {
            break;
     }
     if (!(header[end] && header[end] != 32 && header[end] != 9 && header[end] != 10)) {
-        free(name);
         makro_no_value();
         goto cleanup;
     }
     start_pos = end;
-    for (; header[end]; end++)
-        if (header[end] == 10 || header[end] == 32 || header[end] == 9)
-            break;
-    value = ft_strdup_section(header, start_pos, end);
-    if (!value) {
-        free(name);
+    int temp = end;
+    // bool open_brace = false;
+    bool open_dquote = false;
+    // Look for {}() or ""
+    printf("Makro: %s, Len: %i, Pos: %i, chars: %c, %c, %c\n", header, ft_strlen(header), end, header[end - 1], header[end], header[end + 1]);
+    if (header[end] == '"' && (!header[end + 1] || header[end + 1] == '\n')) {
+        utils_makro_only_dquote();
+        goto cleanup;
+    } else if (header[end] == '{' && (!header[end + 1] || header[end + 1] == '\n')) {
+        utils_makro_only_lbrace();
+        goto cleanup;
+    } else if (header[end] == '(' && (!header[end + 1] || header[end + 1] == '\n')) {
+        utils_makro_only_lbrace();
         goto cleanup;
     }
+    for (; header[end]; end++, temp++) {
+        // if (header[end] == '{' && open_brace == false)
+        //     open_brace = true;
+        if (header[end] == '"' && header[end - 1] != '\\')
+            open_dquote = !open_dquote;
+        if (header[end] == 10 || header[end] == 32 || header[end] == 9)
+            break;
+    }
+    if (open_dquote == true) {
+        utils_makro_only_dquote();
+        goto cleanup;
+    }
+    value = ft_strdup_section(header, start_pos, end);
+    if (!value)
+        goto cleanup;
     makro = append_string(makro, value);
     if (!makro)
         goto cleanup;
@@ -353,11 +373,15 @@ char    **get_makro(char *header, int *start) {
         if (header[end] == 10)
             break;
         if (header[end] != 32 && header[end] != 9) {
-            makro_no_value();
+            write(1, "lolol\n", 6);
+            makro_double_value();
             goto cleanup;
         }
     }
+    free(name);
+    name = NULL;
     *start = end;
+    free(value);
     return makro;
 
     cleanup:
@@ -376,6 +400,10 @@ char    **get_makro(char *header, int *start) {
         if (value) {
             free(value);
             value = NULL;
+        }
+        if (name) {
+            free(name);
+            name = NULL;
         }
         return NULL;
 }
@@ -488,7 +516,7 @@ char **append_string(char **base, char *new_string) {
         char **return_string = (char **)malloc((sizeof(char *) * 2));
         if (!return_string)
             return NULL;
-        return_string[0] = new_string;
+        return_string[0] = ft_strdup(new_string);
         return_string[1] = 0;
         return return_string;
     }
@@ -510,7 +538,7 @@ char **append_string(char **base, char *new_string) {
     for (; pos < len; pos++) {
         return_string[pos] = base[pos];
     }
-    return_string[pos++] = new_string;
+    return_string[pos++] = ft_strdup(new_string);
     return_string[pos] = 0;
     free(base);
     return return_string;

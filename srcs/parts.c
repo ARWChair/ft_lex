@@ -67,11 +67,9 @@ bool format_header_part(ft_lex *lex) {
         if (!line)
             goto cleanup;
         mp = append_map(mp, line[0], line[1]);
-        if (!mp) {
-            double_free(line);
-            goto cleanup;
-        }
         double_free(line);
+        if (!mp)
+            goto cleanup;
     }
     if (!lex->parts) {
         lex->parts = (lexer_parts *)malloc(sizeof(lexer_parts));
@@ -110,6 +108,7 @@ bool format_header_part(ft_lex *lex) {
     }
     return true;
     cleanup:
+        write(1, "B\n", 2);
         if (mp)
             clear_map(mp);
         if (definition != NULL) {
@@ -125,6 +124,7 @@ bool format_header_part(ft_lex *lex) {
             double_free(line);
         single_definition = NULL;
         mp = NULL;
+        write(1, "B\n", 2);
         return false;
 }
 
@@ -194,6 +194,17 @@ bool format_body_part(ft_lex *lex) {
     return true;
 }
 
+bool replace_body_with_makros(ft_lex *lex) {
+    map     *top = lex->parts->top->pairs;
+    map     *middle = lex->parts->middle->pairs;
+    char    *check = NULL;
+
+    for (ssize_t pos = 0; pos < middle->map_size; pos++) {
+        printf("%s\n", middle->content[pos].pattern);
+    }
+    return true;
+}
+
 bool format_footer_part(ft_lex *lex) {
     return true;
 }
@@ -204,6 +215,8 @@ void split_parts(ft_lex *lex) {
     if (check_valid_makros(lex->parts->top) == false)
         shutdown(lex, true);
     if (format_body_part(lex) == false)
+        shutdown(lex, true);
+    if (replace_body_with_makros(lex) == false)
         shutdown(lex, true);
     if (format_footer_part(lex) == false)
         shutdown(lex, true);
@@ -283,7 +296,6 @@ void    split_in_parts(ft_lex *lex) {
     char *temp = ft_strdup(lex->file_content);
     if (!temp)
         shutdown(lex, true);
-    
     terminate_strings(temp);
     if (check_for_parts(lex, temp) == false) {
         free(temp);

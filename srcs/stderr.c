@@ -12,6 +12,10 @@ void makro_no_value() {
     write(2, "Error: Value of Makro not found.\n", 33);
 }
 
+void makro_double_value() {
+    write(2, "Error: Characters after value of makro found.\n", 46);
+}
+
 void header_invalid_definition_opener() {
     write(2, "Error: Wrong formating in Header-part. No matching character found after % sign.\n", 81);
 }
@@ -66,4 +70,12 @@ void utils_regex_too_many_closing() {
 
 void utils_invalid_escape_character() {
     write(2, "Error: Regex has an invalid escape character.\n", 46);
+}
+
+void utils_makro_only_dquote() {
+    write(2, "Error: Makro in header has an unclosed Double quote.\n", 53);
+}
+
+void utils_makro_only_lbrace() {
+    write(2, "Error: Makro in header has an unclosed brace.\n", 47);
 }

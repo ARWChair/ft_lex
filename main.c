@@ -3,7 +3,7 @@
 int main() {
     ft_lex  lex = {0};
 
-    lex.file_fd = open("./files/ex3.l", O_RDWR);
+    lex.file_fd = open("./files/ex1.l", O_RDWR);
     if (lex.file_fd < 3)
         return -1;
     lex.file_content = read_file(lex.file_fd);

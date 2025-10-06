@@ -76,6 +76,7 @@ bool    format_header_part(ft_lex *lex);
 bool    check_valid_makros(lexer_top_struct *lex);
 bool    format_body_part(ft_lex *lex);
 bool    format_footer_part(ft_lex *lex);
+bool    replace_body_with_makros(ft_lex *lex);
 void    split_parts(ft_lex *lex);
 
 // ---------- strings.c -------- \\'
@@ -89,7 +90,6 @@ char    *ft_strdup(char *str);
 char    *ft_strdup_end(char *str, int end);
 char    *ft_strdup_section(char *str, int start, int end);
 char    *read_file(int fd);
-int     is_new_part(char *file, int occurrence);
 int     find_first_occurrence(char *file, char *str);
 int     find_first_occurrence_spaces(char *file, char *str, char last_char);
 int     find_first_occurrence_spaces_end(char *file, char *str, char last_char);
@@ -111,9 +111,10 @@ void    double_free(char **to_free);
 void    shutdown(ft_lex *lex, bool error);
 
 // ---------- stderr.c ---------- \\'
-void    makro_starting_invalid_char();
-void    makro_invalid_name();
 void    makro_no_value();
+void    makro_invalid_name();
+void    makro_double_value();
+void    makro_starting_invalid_char();
 void    header_invalid_definition_opener();
 void    header_definition_not_on_newline();
 void    header_newline_after_definition_opener();
@@ -128,5 +129,7 @@ void    utils_regex_no_closing();
 void    utils_regex_too_many_opening();
 void    utils_regex_too_many_closing();
 void    utils_invalid_escape_character();
+void    utils_makro_only_dquote();
+void    utils_makro_only_lbrace();
 
-    #endif
+#endif

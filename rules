@@ -39,3 +39,13 @@ Wenn du also z. B. wirklich das Zeichen . selbst matchen willst, schreibst du:
 
 WORDS in caps
 all the other things about .c or .h in %{%}
+
+{}   Forbidden
+{\}  Forbidden
+{\{} Allowed
+{\}} Allowed
+
+()   Forbidden
+(\)  Forbidden
+(\() Allowed
+(\)) Allowed
